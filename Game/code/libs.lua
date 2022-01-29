@@ -27,7 +27,20 @@ core.sWidth, core.sHeight = lg.getDimensions()
 core.bumpX = (core.sWidth-800)/2
 core.bumpY = (core.sHeight-600)/2
 
+core.keyMaps = {
+    left = "leftR",
+    right = "rightR",
+    up = "upR",
+    down = "downR",
 
+    a = "leftL",
+    d = "rightL",
+    w = "upL",
+    s = "downL",
+
+    ["return"] = "confirm",
+    escape = "cancel"
+}
 ------------------------ 'g' variables
 
 -- stores all images used in the game
@@ -65,6 +78,64 @@ game.currentMap = {}
 
 ---------------------------------------------------------------------
 -------------------------CORE FUNCTIONS------------------------------
+
+function core.checkInput(key)
+    local input = core.keyMaps[key] and core.keyMaps[key] or "unmapped"
+
+    if game_state == "InGame" then
+
+        print(input)
+
+        local particleColor = {1,0,0}
+        if string.sub(input, #input, #input) == "R" then
+            particleColor = {0,0,1}
+        end
+
+        if input == "leftL" or input == "leftR" then
+            particle.create({
+                img = g.img.beatInnerX,
+                position = {core.bumpX + game.fieldOffset.x + 150, core.bumpY + game.fieldOffset.y + 150},
+                velocity = {-.35,0},
+                scale = {70/g.img.beatInnerX:getWidth(), 200/g.img.beatInnerX:getHeight()},
+                lifetime = .25,
+                color = particleColor,
+                opacity = .5
+            })
+        elseif input == "rightL" or input == "rightR" then
+            particle.create({
+                img = g.img.beatInnerX,
+                position = {core.bumpX + game.fieldOffset.x + 343, core.bumpY + game.fieldOffset.y + 150},
+                velocity = {.25,0},
+                scale = {70/g.img.beatInnerX:getWidth(), 200/g.img.beatInnerX:getHeight()},
+                lifetime = .35,
+                color = particleColor,
+                opacity = .5
+            })
+        elseif input == "upL" or input == "upR" then
+            particle.create({
+                img = g.img.beatInnerY,
+                position = {core.bumpX + game.fieldOffset.x + 150, core.bumpY + game.fieldOffset.y + 150},
+                velocity = {0,-.25},
+                scale = {200/g.img.beatInnerY:getWidth(), 70/g.img.beatInnerY:getHeight()},
+                lifetime = .35,
+                color = particleColor,
+                opacity = .5
+            })
+        elseif input == "downL" or input == "downR" then
+            particle.create({
+                img = g.img.beatInnerY,
+                position = {core.bumpX + game.fieldOffset.x + 150, core.bumpY + game.fieldOffset.y + 343},
+                velocity = {0,.25},
+                scale = {200/g.img.beatInnerY:getWidth(), 70/g.img.beatInnerY:getHeight()},
+                lifetime = .35,
+                color = particleColor,
+                opacity = .5
+            })
+        end
+
+    end
+
+end
 
  -- NOTE: for drawing within the bounds of the game window, use game.draw()
 function core.draw( drawable, x, y, r, sx, sy, ox, oy, kx, ky ) -- in place of love.graphics.draw()
@@ -341,6 +412,12 @@ function game.render() -- this renders the game items (ex. play field, score, et
             200, 200,
             "center", "center"
     )
+
+    particle.draw()
+
+    lg.push()
+    lg.setColor(1,1,1)
+    lg.pop()
 
     -- draw the hit zone foreground
     game.draw(g.img.hitZoneForeground,
