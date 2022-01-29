@@ -41,7 +41,12 @@ g.imagePointers = {
     menuTask = "task.png",
     taskbar = "taskbar.png",
     terminal = "terminal.png",
-    hitZone = "hitZone.png"
+    hitZone = "hitZone.png",
+    hitZoneForeground = "hitZoneForeground.png",
+    beatInnerX = "beatInnerX.png",
+    beatOuterX = "beatOuterX.png",
+    beatInnerY = "beatInnerY.png",
+    beatOuterY = "beatOuterY.png",
 }
 
 ------------------------ 'game' variables
@@ -59,6 +64,7 @@ game.beats = {}
 
  -- NOTE: for drawing within the bounds of the game window, use game.draw()
 function core.draw( drawable, x, y, r, sx, sy, ox, oy, kx, ky ) -- in place of love.graphics.draw()
+
     if type(drawable) == "string" then -- use lg.print to draw if string
         lg.print( drawable, x, y, r, sx, sy, ox, oy, kx, ky )
     else                               -- other drawable types use lg.draw
@@ -93,7 +99,9 @@ function core.draw( drawable, x, y, r, sx, sy, ox, oy, kx, ky ) -- in place of l
 
         lg.draw( drawable, x, y, r, sx, sy, ox, oy, kx, ky )
     end
+
 end
+
 
 -- returns the aspect ratio of either a drawable or X and Y size
 function core.aspectRatio(firstVal, secondVal)
@@ -141,6 +149,8 @@ function g.render() -- the initial rendering function. handles rendering the des
    ------------------------------------------------------------------------------------
 
     -- render desktop background
+    lg.push()
+    lg.setColor(1,1,1)
     core.draw(g.img.desktop,
             core.sWidth/2, core.sHeight/2,
             0,
@@ -156,7 +166,7 @@ function g.render() -- the initial rendering function. handles rendering the des
             36,
             "left", "bottom"
     )
-
+    lg.pop()
 
 end
 
@@ -183,21 +193,103 @@ end
 
 
 -- creates a beat and adds it to the beat table
-function game.createBeat(startTime, endTime, direction, color)
+function game.createBeat(startTime, endTime, direction, color, position, iterations)
     table.insert(game.beats, {
+        currentTime = startTime,
         startTime = startTime,
         endTime = endTime,
         direction = direction,
-        color = color
+        color = color,
+        position = position,
+        iterations = iterations
     })
+end
+
+-- function called to process and increase beat step
+function game.processBeats(dt)
+    for index, beat in pairs(game.beats) do
+        beat.currentTime = beat.currentTime + dt
+        if beat.currentTime >= beat.endTime then
+            game.beats[index] = nil
+        end
+    end
 end
 
 -- function called to render all current beats to the screen
 function game.renderBeats()
 
+    for _, beat in pairs(game.beats) do
+
+        if beat.position == "outer" or not beat.position then
+
+            lg.push()
+            if beat.color == "red" then
+                lg.setColor(1,0,0)
+            else
+                lg.setColor(0,0,1)
+            end
+
+            local ratio = (beat.currentTime - beat.startTime) / (beat.endTime - beat.startTime)
+            local inverseRatio = 1 - ratio
+
+            local xPos, yPos, ySize, xSize, rot = 0
+
+            --- CASE: IT IS LEFT
+            if beat.direction == "left" then
+                xPos = game.fieldOffset.x + (150 * ratio)
+                yPos = game.fieldOffset.y + 250
+                ySize = (300 * inverseRatio) + 200
+                xSize = ySize * core.aspectRatio(g.img.beatOuterX)
+            elseif beat.direction == "right" then
+                xPos = game.fieldOffset.x + 500 - (150 * ratio)
+                yPos = game.fieldOffset.y + 250
+                ySize = -((300 * inverseRatio) + 200)
+                xSize = ySize * core.aspectRatio(g.img.beatOuterX)
+            elseif beat.direction == "up" then
+                yPos = game.fieldOffset.y + (150 * ratio)
+                xPos = game.fieldOffset.x + 250
+                xSize = (300 * inverseRatio) + 200
+                ySize = xSize * core.aspectRatio(g.img.beatOuterY)
+            elseif beat.direction == "down" then
+                yPos = game.fieldOffset.y + 500 - (150 * ratio)
+                xPos = game.fieldOffset.x + 250
+                xSize = -((300 * inverseRatio) + 200)
+                ySize = xSize * core.aspectRatio(g.img.beatOuterY)
+            end
+
+
+
+
+            if beat.direction == "left" or beat.direction == "right" then
+                game.draw(g.img.beatOuterX,
+                        xPos, yPos,
+                        rot,
+                        xSize, ySize,
+                        "left",
+                        "center"
+                )
+            else
+                game.draw(g.img.beatOuterY,
+                        xPos, yPos,
+                        rot,
+                        xSize, ySize,
+                        "center",
+                        "top"
+                )
+            end
+            lg.pop()
+        end
+
+    end
+
+    lg.push()
+    lg.setColor(1,1,1)
+    lg.pop()
 end
 
+
 function game.render() -- this renders the game items (ex. play field, score, etc)
+    lg.push()
     game.draw(g.img.playAreaWindow,
             game.fieldOffset.x - 6, game.fieldOffset.y - 18,
             0,
@@ -213,10 +305,12 @@ function game.render() -- this renders the game items (ex. play field, score, et
             0,
             500, 500
     )
-
+    lg.pop()
 
 
     -- render beats here
+
+    game.renderBeats()
 
 
     -- draw the play area foreground
@@ -225,6 +319,8 @@ function game.render() -- this renders the game items (ex. play field, score, et
             0,
             500, 500
     )
+
+
 
     -- draw the center hit box
     game.draw(g.img.hitZone,
@@ -235,6 +331,13 @@ function game.render() -- this renders the game items (ex. play field, score, et
 
     )
 
+    -- draw the hit zone foreground
+    game.draw(g.img.hitZoneForeground,
+            game.fieldOffset.x + 250, game.fieldOffset.y + 250,
+            0,
+            210, 210,
+            "center", "center"
+    )
     ---------------- render other windows
     -- draw the player status window
     game.draw(g.img.terminal,
@@ -254,7 +357,7 @@ function game.render() -- this renders the game items (ex. play field, score, et
 end
 
 function game.update(dt)
-
+    game.processBeats(dt)
 end
 
 ---------------------------------------------------------------------
