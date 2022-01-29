@@ -1,9 +1,15 @@
-i = 1
+game_state = "InGame" -- game state
 
-function love.draw()
-    love.graphics.print("i've been waiting for " .. i .. " seconds")
+require("code/libs") -- imports all relevant functions and variable declarations
+
+
+function love.draw() -- Runs every time the game draws (MORE than 60 times/sec)
+
 end
 
 function love.update(dt)
-    i = i + dt
+
 end
+
+
+
