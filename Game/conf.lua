@@ -9,7 +9,7 @@ function love.conf(t)
     t.window.resizable = true
 
     t.modules.physics = false
-    t.window.icon = nil                   -- Filepath to an image to use as the window's icon (string)
+    t.window.icon = "assets/core/icon.png"    -- Filepath to an image to use as the window's icon (string)
     t.modules.timer = true              -- Enable the timer module (boolean), Disabling it will result 0 delta time in love.update
 
 end
