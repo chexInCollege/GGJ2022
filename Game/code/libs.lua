@@ -41,12 +41,14 @@ g.imagePointers = {
     menuTask = "task.png",
     taskbar = "taskbar.png",
     terminal = "terminal.png",
+    hitZone = "hitZone.png"
 }
 
 ------------------------ 'game' variables
 
 game.fieldOffset = {x = 50, y = 40}
 
+game.beats = {}
 
 ------------------------ 'menu' variables
 
@@ -154,6 +156,8 @@ function g.render() -- the initial rendering function. handles rendering the des
             36,
             "left", "bottom"
     )
+
+
 end
 
 
@@ -171,13 +175,27 @@ end
 -----------------------GAME FUNCTIONS--------------------------------
 
 -- NOTE: for drawing outside the bounds of the game window, use core.draw()
-
 function game.draw( drawable, x, y, r, sx, sy, ox, oy, kx, ky ) -- in place of love.graphics.draw()
     x = x and x or 0 -- set x to 0 if it doesn't exist
     y = y and y or 0 -- set y to 0 if it doesn't exist
     core.draw( drawable, x + core.bumpX, y + core.bumpY, r, sx, sy, ox, oy, kx, ky )
 end
 
+
+-- creates a beat and adds it to the beat table
+function game.createBeat(startTime, endTime, direction, color)
+    table.insert(game.beats, {
+        startTime = startTime,
+        endTime = endTime,
+        direction = direction,
+        color = color
+    })
+end
+
+-- function called to render all current beats to the screen
+function game.renderBeats()
+
+end
 
 function game.render() -- this renders the game items (ex. play field, score, etc)
     game.draw(g.img.playAreaWindow,
@@ -186,12 +204,17 @@ function game.render() -- this renders the game items (ex. play field, score, et
             512, 524
     )
 
+
+
+
     -- draw the play area BG
     game.draw(g.img.playAreaBg,
             game.fieldOffset.x, game.fieldOffset.y,
             0,
             500, 500
     )
+
+
 
     -- render beats here
 
@@ -203,7 +226,31 @@ function game.render() -- this renders the game items (ex. play field, score, et
             500, 500
     )
 
+    -- draw the center hit box
+    game.draw(g.img.hitZone,
+            game.fieldOffset.x + 250, game.fieldOffset.y + 250,
+            0,
+            200, 200,
+            "center", "center"
 
+    )
+
+    ---------------- render other windows
+    -- draw the player status window
+    game.draw(g.img.terminal,
+            game.fieldOffset.x + 530, game.fieldOffset.y - 18,
+            0,
+            180, 320
+    )
+
+
+
+    -- draw the progress window
+    game.draw(g.img.progressWindow,
+            game.fieldOffset.x + 530, game.fieldOffset.y + 325,
+            0,
+            180, 100
+    )
 end
 
 function game.update(dt)
