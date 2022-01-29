@@ -55,6 +55,10 @@ game.fieldOffset = {x = 50, y = 40}
 
 game.beats = {}
 
+game.mapDirectory = "assets/maps/"
+game.currentSong = false
+game.currentMap = {}
+
 ------------------------ 'menu' variables
 
 
@@ -287,6 +291,14 @@ function game.renderBeats()
     lg.pop()
 end
 
+function game.loadMap(mapName)
+    game.currentMap = {
+        -- MAP DATA
+    }
+
+    game.currentSong = love.audio.newSource(game.mapDirectory .. "testMap/song.mp3", "stream")
+end
+
 
 function game.render() -- this renders the game items (ex. play field, score, etc)
     lg.push()
@@ -328,7 +340,6 @@ function game.render() -- this renders the game items (ex. play field, score, et
             0,
             200, 200,
             "center", "center"
-
     )
 
     -- draw the hit zone foreground
