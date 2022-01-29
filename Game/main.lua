@@ -13,6 +13,8 @@ function love.draw() -- Runs every time the game draws (MORE than 60 times/sec)
     elseif game_state == "Menu" then
         menu.render()
     end
+
+
 end
 
 function love.update(dt)

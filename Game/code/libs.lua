@@ -36,6 +36,7 @@ g.imagePointers = {
     desktop = "desktop.png",
     playAreaBg = "playAreaBg.png",
     playAreaWindow = "playAreaWindow.png",
+    playAreaForeground = "playAreaForeground.png",
     progressWindow = "progressWindow.png",
     menuTask = "task.png",
     taskbar = "taskbar.png",
@@ -59,7 +60,6 @@ function core.draw( drawable, x, y, r, sx, sy, ox, oy, kx, ky ) -- in place of l
     if type(drawable) == "string" then -- use lg.print to draw if string
         lg.print( drawable, x, y, r, sx, sy, ox, oy, kx, ky )
     else                               -- other drawable types use lg.draw
-
         -- converting the scale functionality to exact pixel measurements
         if sx then
             sx = (1 / drawable:getWidth()) * sx
@@ -145,7 +145,15 @@ function g.render() -- the initial rendering function. handles rendering the des
             core.sHeight*core.aspectRatio(g.img.desktop), core.sHeight,
             "center", "center")
 
-    
+
+    -- render the taskbar
+    core.draw(g.img.taskbar,
+            0, core.bumpY + 600,
+            0,
+            core.sWidth,
+            36,
+            "left", "bottom"
+    )
 end
 
 
@@ -178,11 +186,24 @@ function game.render() -- this renders the game items (ex. play field, score, et
             512, 524
     )
 
+    -- draw the play area BG
     game.draw(g.img.playAreaBg,
             game.fieldOffset.x, game.fieldOffset.y,
             0,
             500, 500
     )
+
+    -- render beats here
+
+
+    -- draw the play area foreground
+    game.draw(g.img.playAreaForeground,
+            game.fieldOffset.x, game.fieldOffset.y,
+            0,
+            500, 500
+    )
+
+
 end
 
 function game.update(dt)
