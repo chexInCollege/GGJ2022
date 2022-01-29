@@ -20,10 +20,24 @@ lk = love.keyboard
 
 
 ------------------------ 'core' variables
+-- determine the window size
+core.sWidth, core.sHeight = lg.getDimensions()
+
+-- determine the "bump" values
+core.bumpX = (core.sWidth-800)/2
+core.bumpY = (core.sHeight-600)/2
 
 
 ------------------------ 'g' variables
 
+-- stores all images used in the game
+g.img = {}
+g.imagePointers = {
+    desktop = "desktop.png",
+    playArea_bg = "playAreaBg.png",
+    playArea_border = "playAreaBoarder.png", -- fix spelling
+    progressWindow
+}
 
 ------------------------ 'game' variables
 
@@ -38,20 +52,54 @@ lk = love.keyboard
  -- NOTE: for drawing within the bounds of the game window, use game.draw()
 function core.draw( drawable, x, y, r, sx, sy, ox, oy, kx, ky ) -- in place of love.graphics.draw()
     if type(drawable) == "string" then -- use lg.print to draw if string
-        lg.print( drawable, x, y + core.bumpY, r, sx, sy, ox, oy, kx, ky )
+        lg.print( drawable, x, y, r, sx, sy, ox, oy, kx, ky )
     else                               -- other drawable types use lg.draw
-        lg.draw( drawable, x, y + core.bumpY, r, sx, sy, ox, oy, kx, ky )
+
+        -- converting the scale functionality to exact pixel measurements
+        if sx then
+            sx = (1 / drawable:getWidth()) * sx
+        end
+
+        if sy then
+            sy = (1 / drawable:getHeight()) * sy
+        end
+
+        if ox then
+            if ox == "left" then
+                ox = 0
+            elseif ox == "center" then
+                ox = drawable:getWidth()/2
+            elseif ox == "right" then
+                ox = drawable:getWidth()
+            end
+        end
+
+        if oy then
+            if oy == "top" then
+                oy = 0
+            elseif oy == "center" then
+                oy = drawable:getHeight()/2
+            elseif oy == "bottom" then
+                oy = drawable:getHeight()
+            end
+        end
+
+        lg.draw( drawable, x, y, r, sx, sy, ox, oy, kx, ky )
+    end
+end
+
+-- returns the aspect ratio of either a drawable or X and Y size
+function core.aspectRatio(firstVal, secondVal)
+    if secondVal then
+        return (firstVal/secondVal)
+    else
+        return firstVal:getWidth()/firstVal:getHeight()
     end
 end
 
 function core.update(dt)
 
 end
-
-function core.render()
-
-end
-
 
 
 ---------------------------------------------------------------------
@@ -65,6 +113,8 @@ function g.render() -- the initial rendering function. handles rendering the des
     -- determine the "bump" values
     core.bumpX = (core.sWidth-800)/2
     core.bumpY = (core.sHeight-600)/2
+
+
 
 
 
@@ -82,7 +132,26 @@ function g.render() -- the initial rendering function. handles rendering the des
         lg.translate(translateX, translateY)
         lg.scale(ratio,ratio)
    ------------------------------------------------------------------------------------
+
+    -- render desktop background
+    core.draw(g.img.desktop,
+            core.sWidth/2, core.sHeight/2,
+            0,
+            core.sHeight*core.aspectRatio(g.img.desktop), core.sHeight,
+            "center", "center")
+
+    
 end
+
+
+
+function g.loadSkin(skinName) -- loads a skin into memory
+    for name, imagePath in pairs(g.imagePointers) do
+        g.img[name] = lg.newImage("assets/skins/" .. skinName .. "/" .. imagePath)
+    end
+end
+
+
 
 
 ---------------------------------------------------------------------
@@ -91,12 +160,11 @@ end
 -- NOTE: for drawing outside the bounds of the game window, use core.draw()
 
 function game.draw( drawable, x, y, r, sx, sy, ox, oy, kx, ky ) -- in place of love.graphics.draw()
-    if type(drawable) == "string" then -- use lg.print to draw if string
-        lg.print( drawable, x + core.bumpX, y + core.bumpY, r, sx, sy, ox, oy, kx, ky )
-    else                               -- other drawable types use lg.draw
-        lg.draw( drawable, x + core.bumpY, y + core.bumpY, r, sx, sy, ox, oy, kx, ky )
-    end
+    x = x and x or 0 -- set x to 0 if it doesn't exist
+    y = y and y or 0 -- set y to 0 if it doesn't exist
+    core.draw( drawable, x + core.bumpY, y + core.bumpY, r, sx, sy, ox, oy, kx, ky )
 end
+
 
 function game.render() -- this renders the game items (ex. play field, score, etc)
 
