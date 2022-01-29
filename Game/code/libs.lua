@@ -34,12 +34,17 @@ core.bumpY = (core.sHeight-600)/2
 g.img = {}
 g.imagePointers = {
     desktop = "desktop.png",
-    playArea_bg = "playAreaBg.png",
-    playArea_border = "playAreaBoarder.png", -- fix spelling
-    progressWindow
+    playAreaBg = "playAreaBg.png",
+    playAreaWindow = "playAreaWindow.png",
+    progressWindow = "progressWindow.png",
+    menuTask = "task.png",
+    taskbar = "taskbar.png",
+    terminal = "terminal.png",
 }
 
 ------------------------ 'game' variables
+
+game.fieldOffset = {x = 50, y = 40}
 
 
 ------------------------ 'menu' variables
@@ -162,12 +167,22 @@ end
 function game.draw( drawable, x, y, r, sx, sy, ox, oy, kx, ky ) -- in place of love.graphics.draw()
     x = x and x or 0 -- set x to 0 if it doesn't exist
     y = y and y or 0 -- set y to 0 if it doesn't exist
-    core.draw( drawable, x + core.bumpY, y + core.bumpY, r, sx, sy, ox, oy, kx, ky )
+    core.draw( drawable, x + core.bumpX, y + core.bumpY, r, sx, sy, ox, oy, kx, ky )
 end
 
 
 function game.render() -- this renders the game items (ex. play field, score, etc)
+    game.draw(g.img.playAreaWindow,
+            game.fieldOffset.x - 6, game.fieldOffset.y - 18,
+            0,
+            512, 524
+    )
 
+    game.draw(g.img.playAreaBg,
+            game.fieldOffset.x, game.fieldOffset.y,
+            0,
+            500, 500
+    )
 end
 
 function game.update(dt)
