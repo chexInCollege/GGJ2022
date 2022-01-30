@@ -670,6 +670,8 @@ function core.checkInput(key)
         -- handle cancel button
         if input == "cancel" then
             game.currentSong:stop()
+            menu.currentX = 1
+            menu.currentY = 1
             game_state = "GameDone"
         end
 
@@ -1407,6 +1409,17 @@ function menu.render()
         end
 
     end
+
+    lg.push()
+    lg.setColor(0,0,0)
+    game.draw("Start",
+            menu.taskOffsetX[1] + 25, 574,
+            0
+    )
+
+
+    lg.pop()
+    lg.setColor(1,1,1)
 
 end
 
