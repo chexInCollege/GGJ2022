@@ -52,6 +52,9 @@ g.imagePointers = {
     playAreaForeground = "playAreaForeground.png",
     progressWindow = "progressWindow.png",
     menuTask = "task.png",
+    menuTaskSelected = "taskSelected.png",
+    menuStart = "start.png",
+    menuStartSelected = "startSelected.png",
     taskbar = "taskbar.png",
     terminal = "terminal.png",
     hitZone = "hitZone.png",
@@ -74,6 +77,16 @@ game.currentMap = {}
 
 ------------------------ 'menu' variables
 
+menu.current = 1
+menu.taskList = {
+    start = { "exit" },
+    play = { "jazzJackrabbit" },
+    settings = { "song volume", "sfx volume" },
+    credits = { "code", "graphics", "songs", "sfx" }
+}
+menu.taskOffsetX = {
+    6, 77, 212, 348
+}
 
 
 ---------------------------------------------------------------------
@@ -132,9 +145,29 @@ function core.checkInput(key)
                 opacity = .5
             })
         end
+    elseif game_state == "Menu" then
+        print(input)
+
+        if input == "leftL" or input == "leftR" then
+            menu.current = menu.current - 1;
+        end
+        if input == "rightL" or input == "rightR" then
+            menu.current = menu.current + 1;
+        end
+
+        menu.current = core.clamp(menu.current, 1, 4)
 
     end
 
+end
+
+function core.clamp(number, numberMin, numberMax)
+    if number < numberMin then
+        number = numberMin
+    elseif number > numberMax then
+        number = numberMax
+    end
+    return number
 end
 
  -- NOTE: for drawing within the bounds of the game window, use game.draw()
@@ -241,8 +274,31 @@ function g.render() -- the initial rendering function. handles rendering the des
             36,
             "left", "bottom"
     )
-    lg.pop()
 
+    ------------------------------------------------------------------------------------
+
+    -- render the start bar on taskbar
+    core.draw(g.img.menuStart,
+            core.bumpX + 6, 582,
+            0,
+            65,
+            20,
+            "left", "center"
+    )
+
+    -- render tasks
+    for i = 1, 3 do
+        game.draw(g.img.menuTask,
+                menu.taskOffsetX[i + 1], 582,
+                0,
+                130,
+                20,
+                "left", "center"
+        )
+    end
+
+
+    lg.pop()
 end
 
 
@@ -451,7 +507,89 @@ end
 ---------------------------------------------------------------------
 ----------------------MENU FUNCTIONS---------------------------------
 
-function menu.render() -- this renders the game items (ex. play field, score, etc)
+function menu.render()
+
+    if menu.current == 1 then
+        game.draw(g.img.menuStartSelected,
+                menu.taskOffsetX[1], 582,
+                0,
+                65,
+                20,
+                "left", "center"
+        )
+        -- render contexts
+        local currOffset = 0
+        for _, selectedContext in pairs(menu.taskList.start) do
+            game.draw(g.img.menuStart,
+                    menu.taskOffsetX[1], 564 - currOffset,
+                    0,
+                    65,
+                    20,
+                    "left", "bottom"
+            )
+            currOffset = currOffset + 20
+        end
+    elseif menu.current == 2 then
+        game.draw(g.img.menuTaskSelected,
+                menu.taskOffsetX[2], 582,
+                0,
+                130,
+                20,
+                "left", "center"
+        )
+        -- render contexts
+        local currOffset = 0
+        for _, selectedContext in pairs(menu.taskList.play) do
+            game.draw(g.img.menuTask,
+                    menu.taskOffsetX[2], 564 - currOffset,
+                    0,
+                    130,
+                    20,
+                    "left", "bottom"
+            )
+            currOffset = currOffset + 20
+        end
+    elseif menu.current == 3 then
+        game.draw(g.img.menuTaskSelected,
+                menu.taskOffsetX[3], 582,
+                0,
+                130,
+                20,
+                "left", "center"
+        )
+        -- render contexts
+        local currOffset = 0
+        for _, selectedContext in pairs(menu.taskList.settings) do
+            game.draw(g.img.menuTask,
+                    menu.taskOffsetX[3], 564 - currOffset,
+                    0,
+                    130,
+                    20,
+                    "left", "bottom"
+            )
+            currOffset = currOffset + 20
+        end
+    elseif menu.current == 4 then
+        game.draw(g.img.menuTaskSelected,
+                menu.taskOffsetX[4], 582,
+                0,
+                130,
+                20,
+                "left", "center"
+        )
+        -- render contexts
+        local currOffset = 0
+        for _, selectedContext in pairs(menu.taskList.credits) do
+            game.draw(g.img.menuTask,
+                    menu.taskOffsetX[4], 564 - currOffset,
+                    0,
+                    130,
+                    20,
+                    "left", "bottom"
+            )
+            currOffset = currOffset + 20
+        end
+    end
 
 end
 

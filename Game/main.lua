@@ -1,4 +1,4 @@
-game_state = "InGame" -- game state
+game_state = "Menu" -- game state
 
 require("code/libs") -- imports all relevant functions and variable declarations
 require("code/particles")
