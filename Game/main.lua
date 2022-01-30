@@ -19,7 +19,7 @@ function love.draw() -- Runs every time the game draws (MORE than 60 times/sec)
     elseif game_state == "Menu" then
         menu.render()
     elseif game.state == "GameDone" then
-        --finish.render()
+        done.render()
     end
 
     --if game.currentSong then print(game.currentSong:tell()) end
