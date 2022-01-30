@@ -63,6 +63,10 @@ g.imagePointers = {
     beatOuterX = "beatOuterX.png",
     beatInnerY = "beatInnerY.png",
     beatOuterY = "beatOuterY.png",
+    progressGraphic = "progressGraphic.png",
+    nice = "nice.png",
+    perfect = "perfect.png",
+    time = "time.png",
 }
 
 g.snd = {}
@@ -83,13 +87,13 @@ game.fieldOffset = {x = 50, y = 40}
 
 game.beats = {}
 
-
+game.songSlowdown = (140/120)
 
 game.mapDirectory = "assets/maps/"
 game.currentSong = false
 game.currentMap = {}
 
-game.approachRate = 0.35
+game.approachRate = 0.65
 game.niceThreshold = 0.26/2
 game.perfectThreshold = 0.13/2
 
@@ -102,31 +106,416 @@ game.perfectThreshold = 0.13/2
 ---     }
 --- }
 game.beatmapData = {
-    {
-        1.00,
-        "L2"
-    },
-    {
-        1.50,
-        "L1"
-    },
-    {
-        2.00,
-        "R1"
-    },
+    {5,
+    "L2"},
+
+    {5.5,
+     "R2"},
+    {5.75,
+     "U2"},
+    {6,
+     "R2"},
+    {6.25,
+     "U2"},
+    {6.5,
+     "L2"},
+
+    {7,
+     "R2"},
+    {7.25,
+     "U2"},
+    {7.5,
+     "R2"},
+    {7.75,
+     "U2"},
+    {8,
+     "L2"},
+
+    {8.5,
+     "U1"},
+    {8.5,
+     "D2"},
+
+    {9,
+     "L2"},
+
+    {9.5,
+     "R2"},
+    {9.75,
+     "U2"},
+    {10,
+     "R2"},
+    {10.25,
+     "U2"},
+    {10.5,
+     "L2"},
+
+    {11,
+     "R2"},
+    {11.25,
+     "U2"},
+    {11.5,
+     "R2"},
+    {11.75,
+     "U2"},
+    {12,
+     "L2"},
+
+    {12.5,
+     "L2"},
+    {12.5,
+     "R2"},
+    {12.5,
+     "U1"},
+
+    {13,
+     "D2"},
+
+    {13.5,
+     "R2"},
+    {13.75,
+     "U2"},
+    {14,
+     "R2"},
+    {14.25,
+     "U2"},
+    {14.5,
+     "L2"},
+
+    {15,
+     "R2"},
+    {15.25,
+     "U2"},
+    {15.5,
+     "R2"},
+    {15.75,
+     "U2"},
+    {16,
+     "L2"},
+
+    {16.5,
+     "L2"},
+    {16.5,
+     "R2"},
+    {16.5,
+     "U2"},
+    {16.5,
+     "L1"},
+    {16.5,
+     "R1"},
+    {16.5,
+     "U1"},
+
+    {17,
+     "D2"},
+
+    {17.5,
+     "R2"},
+    {17.75,
+     "U2"},
+    {18,
+     "R2"},
+    {18.25,
+     "U2"},
+    {18.5,
+     "L2"},
+
+    {19,
+     "R2"},
+    {19.25,
+     "U2"},
+    {19.5,
+     "R2"},
+    {19.75,
+     "U2"},
+    {20,
+     "L2"},
+
+    {21,
+     "D2"},
+
+    {21.5,
+     "R2"},
+    {21.75,
+     "U2"},
+    {22,
+     "R2"},
+    {22.25,
+     "U2"},
+    {22.5,
+     "L2"},
+    {22.5,
+     "D1"},
+
+
+    {23,
+     "R2"},
+    {23.25,
+     "U2"},
+    {23.5,
+     "R2"},
+    {23.75,
+     "U2"},
+    {24,
+     "L2"},
+    {24,
+     "D1"},
+
+    {24.5,
+     "L2"},
+    {24.5,
+     "D1"},
+
+    {25,
+     "L2"},
+    {25,
+     "D1"},
+
+    {25.5,
+     "R2"},
+    {25.75,
+     "U2"},
+    {26,
+     "R2"},
+    {26.25,
+     "U2"},
+    {26.5,
+     "L2"},
+    {26.5,
+     "D1"},
+
+
+    {27,
+     "R2"},
+    {27.25,
+     "U2"},
+    {27.5,
+     "R2"},
+    {27.75,
+     "U2"},
+    {28,
+     "L2"},
+    {28,
+     "D1", 2, 0.5},
+
+    {29,
+     "D2"},
+
+    {29.5,
+     "R2"},
+    {29.75,
+     "D2"},
+    {30,
+     "R2"},
+    {30.25,
+     "D2"},
+    {30.5,
+     "L2"},
+    {30.5,
+     "R1"},
+
+
+    {31,
+     "R2"},
+    {31.25,
+     "D2"},
+    {31.5,
+     "R2"},
+    {31.75,
+     "D2"},
+    {32,
+     "L2"},
+    {32,
+     "R1"},
+    {32.5,
+     "L2"},
+    {32.5,
+     "R1"},
+
+    {33,
+     "L2"},
+    {33,
+     "R1"},
+
+    {33.5,
+     "R2"},
+    {33.75,
+     "D2"},
+    {34,
+     "R2"},
+    {34.25,
+     "D2"},
+    {34.5,
+     "L2"},
+    {34.5,
+     "R1"},
+
+
+    {35,
+     "R2"},
+    {35.25,
+     "D2"},
+    {35.5,
+     "R2"},
+    {35.75,
+     "D2"},
+    {36,
+     "L2"},
+    {36,
+     "R1", 1, 0.5},
+
+    -- bridge
+    {37,
+     "R2", 3, 2},
+
+    {37.5,
+    "D1", 2, .5},
+
+    {39.5,
+     "D1", 2, .5},
+
+    {41.5,
+     "U1", 2, .5},
+
+    {43.5,
+     "U1", 2, .5},
+
+    {45,
+     "L2"},
+
+    {45.5,
+     "U2"},
+    {45.75,
+     "R2"},
+    {46,
+     "D2"},
+    {46.25,
+     "L2"},
+    {46.5,
+     "U2"},
+
+    {47,
+     "L2"},
+    {47.25,
+     "D2"},
+    {47.5,
+     "R2"},
+    {47.75,
+     "U2"},
+    {48,
+     "L2"},
+
+    {48.5,
+     "L2"},
+
+    {49,
+     "L1"},
+
+    {49.5,
+     "U1"},
+    {49.75,
+     "R1"},
+    {50,
+     "D1"},
+    {50.25,
+     "L1"},
+    {50.5,
+     "U1"},
+
+    {51,
+     "L1"},
+    {51.25,
+     "D1"},
+    {51.5,
+     "R1"},
+    {51.75,
+     "U1"},
+    {52,
+     "L1"},
+
+    {52.5,
+     "L1"},
+
+    {53,
+     "R1", 3, 2},
+
+    {53.5,
+     "U2", 2, .5},
+
+    {55.5,
+     "U2", 2, .5},
+
+    {57.5,
+     "D2", 2, .5},
+
+    {59.5,
+     "D2", 2, .5},
+
+    {61,
+     "R1"},
+
+    {61.5,
+     "U1"},
+    {61.75,
+     "L1"},
+    {62,
+     "D1"},
+    {62.25,
+     "R1"},
+    {62.5,
+     "U1"},
+
+    {63,
+     "R1"},
+    {63.25,
+     "D1"},
+    {63.5,
+     "L1"},
+    {63.75,
+     "U1"},
+    {64,
+     "R1"},
+
+    {64.5,
+     "R1"},
+
+    {65,
+     "R2"},
+
+    {65.5,
+     "U2"},
+    {65.75,
+     "L2"},
+    {66,
+     "D2"},
+    {66.25,
+     "R2"},
+    {66.5,
+     "U2"},
+
+    {67,
+     "R2"},
+    {67.25,
+     "D2"},
+    {67.5,
+     "L2"},
+    {67.75,
+     "U2"},
+    {68,
+     "R2"},
+
+    {68.5,
+     "R2"},
+}
+
+--[[
     {
         2.50,
         "R2",
         4,
         .5
     },
-    {
-        2.50,
-        "U2",
-        2,
-        1
-    }
-}
+]]
 
 ------------------------ 'menu' variables
 
@@ -162,10 +551,10 @@ function core.checkInput(key)
 
         local particleColor
         if string.sub(input, #input, #input) == "R" then
-            particleColor = {.5,.5,1}
-            core.playSound(g.snd.hitRight)
+            particleColor = {.2,.25,1}
+            core.playSound(g.snd.hitLeft)
         else
-            particleColor = {1,0,0}
+            particleColor = {1,.2,.25}
             core.playSound(g.snd.hitLeft)
         end
 
@@ -174,40 +563,44 @@ function core.checkInput(key)
                 img = g.img.beatInnerX,
                 position = {core.bumpX + game.fieldOffset.x + 150, core.bumpY + game.fieldOffset.y + 150},
                 velocity = {-.35,0},
-                scale = {70/g.img.beatInnerX:getWidth(), 200/g.img.beatInnerX:getHeight()},
+                scale = {150/g.img.beatInnerX:getWidth(), 200/g.img.beatInnerX:getHeight()},
                 lifetime = .25,
                 color = particleColor,
-                opacity = .5
+                opacity = 1,
+                opacityDelta = -0.05
             })
         elseif input == "rightL" or input == "rightR" then
             particle.create({
                 img = g.img.beatInnerX,
-                position = {core.bumpX + game.fieldOffset.x + 343, core.bumpY + game.fieldOffset.y + 150},
+                position = {core.bumpX + game.fieldOffset.x + 335, core.bumpY + game.fieldOffset.y + 150},
                 velocity = {.25,0},
-                scale = {70/g.img.beatInnerX:getWidth(), 200/g.img.beatInnerX:getHeight()},
-                lifetime = .35,
+                scale = {150/g.img.beatInnerX:getWidth(), 200/g.img.beatInnerX:getHeight()},
+                lifetime = .25,
                 color = particleColor,
-                opacity = .5
+                opacity = 1,
+                opacityDelta = -0.05
             })
         elseif input == "upL" or input == "upR" then
             particle.create({
                 img = g.img.beatInnerY,
                 position = {core.bumpX + game.fieldOffset.x + 150, core.bumpY + game.fieldOffset.y + 150},
                 velocity = {0,-.25},
-                scale = {200/g.img.beatInnerY:getWidth(), 70/g.img.beatInnerY:getHeight()},
-                lifetime = .35,
+                scale = {200/g.img.beatInnerY:getWidth(), 150/g.img.beatInnerY:getHeight()},
+                lifetime = .25,
                 color = particleColor,
-                opacity = .5
+                opacity = 1,
+                opacityDelta = -0.05
             })
          elseif input == "downL" or input == "downR" then
             particle.create({
                 img = g.img.beatInnerY,
-                position = {core.bumpX + game.fieldOffset.x + 150, core.bumpY + game.fieldOffset.y + 343},
+                position = {core.bumpX + game.fieldOffset.x + 150, core.bumpY + game.fieldOffset.y + 335},
                 velocity = {0,.25},
-                scale = {200/g.img.beatInnerY:getWidth(), 70/g.img.beatInnerY:getHeight()},
-                lifetime = .35,
+                scale = {200/g.img.beatInnerY:getWidth(), 150/g.img.beatInnerY:getHeight()},
+                lifetime = .25,
                 color = particleColor,
-                opacity = .5
+                opacity = 1,
+                opacityDelta = -0.05
             })
         end
 
@@ -220,10 +613,43 @@ function core.checkInput(key)
             if direction == inputData[2] and color == inputData[3] then
                 if math.abs(game.currentSong:tell() - inputData[1]) < game.perfectThreshold then
                     -- perfect hit
-                    print("wow tetris")
+                    particle.create("hitConfirm", {
+                        img = g.img.perfect,
+                        position = {core.bumpX + (800 - 205), core.bumpY + 495},
+                        lifetime = 0.5,
+
+                        lifetimeMapping = {
+                            {0.45,
+                             {
+                                 position = {core.bumpX + (800 - 205), core.bumpY + 490},
+                             },
+                            },
+                            {0.3,
+                             {
+                                 position = {core.bumpX + (800 - 205), core.bumpY + 495}
+                             }
+                            }
+                        }
+                    })
                 elseif math.abs(game.currentSong:tell() - inputData[1]) < game.niceThreshold then
-                    print("jusit a triple,,")
-                end
+                    particle.create("hitConfirm", {
+                        img = g.img.nice,
+                        position = {core.bumpX + (800 - 205), core.bumpY + 495},
+                        lifetime = 0.5,
+
+                        lifetimeMapping = {
+                            {0.45,
+                             {
+                                 position = {core.bumpX + (800 - 205), core.bumpY + 490},
+                             },
+                            },
+                            {0.3,
+                             {
+                                 position = {core.bumpX + (800 - 205), core.bumpY + 495}
+                             }
+                            }
+                        }
+                    })                end
 
                 if math.abs(game.currentSong:tell() - inputData[1]) < game.niceThreshold then
                     game.inputList[index] = nil
@@ -352,7 +778,7 @@ function g.render() -- the initial rendering function. handles rendering the des
     core.draw(g.img.desktop,
             core.sWidth/2, core.sHeight/2,
             0,
-            core.sHeight*core.aspectRatio(g.img.desktop), core.sHeight,
+            600*core.aspectRatio(g.img.desktop), 600,
             "center", "center")
 
 
@@ -376,6 +802,8 @@ function g.render() -- the initial rendering function. handles rendering the des
             "left", "center"
     )
 
+
+
     -- render tasks
     for i = 1, 3 do
         game.draw(g.img.menuTask,
@@ -387,6 +815,14 @@ function g.render() -- the initial rendering function. handles rendering the des
         )
     end
 
+    -- render time bar
+    game.draw(g.img.time,
+            700, 583,
+            0,
+            93,
+            20,
+            "left", "center"
+    )
 
     lg.pop()
 end
@@ -400,6 +836,9 @@ function g.loadSkin(skinName) -- loads a skin into memory
 
     for name, audioPath in pairs(g.soundPointers) do
         g.snd[name] = love.audio.newSource("assets/skins/" .. skinName .. "/sfx/" .. audioPath, "static")
+        if name == "hitLeft" then
+            g.snd[name]:setVolume(2)
+        end
     end
 end
 
@@ -419,7 +858,10 @@ end
 function game.init()
     game.loadMap()
     game.currentSong:setVolume(g.songVolume)
-    game.currentSong:setPitch(100/120)
+    game.currentSong:setPitch(game.songSlowdown)
+
+    if game.songPreview then game.currentSong:seek(game.songPreview) end
+
     game.currentSong:play()
     game.inputList = {}
 end
@@ -449,6 +891,7 @@ end
 
 -- function called to process and increase beat step
 function game.processBeats(dt)
+    if game.songSlowdown then dt = dt * game.songSlowdown end
     for index, beat in pairs(game.beats) do
         beat.currentTime = beat.currentTime + dt
         if beat.currentTime >= beat.endTime then
@@ -502,7 +945,7 @@ function game.renderBeats()
         if beat.color == "red" then
             lg.setColor(1,0,0, beat.opacity)
         else
-            lg.setColor(0,0,1, beat.opacity)
+            lg.setColor(0.25,0.25,1, beat.opacity)
         end
 
         local ratio = (beat.currentTime - beat.startTime) / (beat.endTime - beat.startTime)
@@ -681,6 +1124,12 @@ function game.render() -- this renders the game items (ex. play field, score, et
 
     -- draw the progress window
     game.draw(g.img.progressWindow,
+            game.fieldOffset.x + 530, game.fieldOffset.y + 325,
+            0,
+            180, 100
+    )
+
+    game.draw(g.img.progressGraphic,
             game.fieldOffset.x + 530, game.fieldOffset.y + 325,
             0,
             180, 100

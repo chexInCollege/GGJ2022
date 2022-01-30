@@ -1,11 +1,13 @@
-game_state = "InGame" -- game state
+game_state = "Menu" -- game state
 
 require("code/libs") -- imports all relevant functions and variable declarations
 require("code/particles")
 
+game.songPreview = 0
+
 g.loadSkin("default") -- load default skin
 
-game.init()
+-- game.init()
 
 
 function love.draw() -- Runs every time the game draws (MORE than 60 times/sec)
@@ -17,7 +19,7 @@ function love.draw() -- Runs every time the game draws (MORE than 60 times/sec)
         menu.render()
     end
 
-
+    if game.currentSong then print(game.currentSong:tell()) end
 
 end
 

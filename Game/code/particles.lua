@@ -119,8 +119,8 @@ particle.create("name", {particle})
 ]]
 
 function particle.create(particleData, particleData2) -- particleName is optional
-    if particleName then
-        particleList[particleData2] = particleData
+    if particleData2 then
+        particleList[particleData] = particleData2
     else
         table.insert(particleList, particleData)
     end
