@@ -74,6 +74,7 @@ g.imagePointers = {
     time = "time.png",
     popUp = "popUp.png",
     popUpBig = "popUpBig.png",
+    health = "health.png",
 }
 
 g.snd = {}
@@ -989,7 +990,7 @@ function game.init()
     game.niceCount = 0
     game.accuracy = 0
 
-    game.hpDrain = 2
+    game.hpDrain = 1.5
     game.hp = 10
 
     game.beats = {}
@@ -1271,11 +1272,23 @@ function game.render() -- this renders the game items (ex. play field, score, et
             game.fieldOffset.x + 540, game.fieldOffset.y + 10
     )
 
-
+    game.accuracy = game.beatCount > 0 and game.accuracy or 0
     local acc_str = string.sub(tostring(game.accuracy * 100), 1, 5) .. "%"
     game.draw("ACCURACY: " .. acc_str,
             game.fieldOffset.x + 540, game.fieldOffset.y + 30
     )
+
+    local acc_str = string.sub(tostring(game.accuracy * 100), 1, 5) .. "%"
+    game.draw("HP: ",
+            game.fieldOffset.x + 540, game.fieldOffset.y + 70
+    )
+
+    for i = 1, game.hp do
+        game.draw(g.img.health,
+                game.fieldOffset.x + 530 + (i * 15), game.fieldOffset.y + 90, 0,
+                15,15
+        )
+    end
 
     -- draw the progress window
     game.draw(g.img.progressWindow,
