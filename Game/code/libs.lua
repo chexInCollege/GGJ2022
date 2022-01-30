@@ -745,20 +745,29 @@ function core.checkInput(key)
         if input == "leftL" or input == "leftR" then
             menu.currentX = menu.currentX - 1
             menu.currentY = 1
+            core.playSound(g.snd.menuNavX)
         end
         if input == "rightL" or input == "rightR" then
             menu.currentX = menu.currentX + 1
             menu.currentY = 1
+            core.playSound(g.snd.menuNavX)
         end
         if input == "downL" or input == "downR" then
             menu.currentY = menu.currentY - 1
+            core.playSound(g.snd.menuNavY)
         end
         if input == "upL" or input == "upR" then
             menu.currentY = menu.currentY + 1
+            core.playSound(g.snd.menuNavY)
         end
 
         menu.currentX = core.clamp(menu.currentX, 1, 4)
         menu.currentY = core.clamp(menu.currentY, 2, #menu.taskList[menu.taskListKeys[menu.currentX]] + 1)
+
+        if input == "confirm" then
+            core.playSound(g.snd.menuNavX)
+            core.playSound(g.snd.menuNavY)
+        end
 
         -- handle actual menu button functions
         if input == "confirm" and menu.currentX == 1 and menu.currentY == 2 then
