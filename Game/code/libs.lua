@@ -65,15 +65,68 @@ g.imagePointers = {
     beatOuterY = "beatOuterY.png",
 }
 
+g.snd = {}
+g.soundPointers = {
+    hitLeft = "hitLeft.ogg",
+    hitRight = "hitRight.ogg",
+    menuNavX = "menuNavX.ogg",
+    menuNavY = "menuNavY.ogg",
+    tada = "tada.mp3",
+    chord = "chord.mp3"
+}
+
+g.sfxVolume = 1
+g.songVolume = 0.5
 ------------------------ 'game' variables
 
 game.fieldOffset = {x = 50, y = 40}
 
 game.beats = {}
 
+
+
 game.mapDirectory = "assets/maps/"
 game.currentSong = false
 game.currentMap = {}
+
+game.approachRate = 0.35
+game.niceThreshold = 0.26/2
+game.perfectThreshold = 0.13/2
+
+
+--- beatmap structure:
+--- {
+---     {
+---         timestamp,
+---         "U2"
+---     }
+--- }
+game.beatmapData = {
+    {
+        1.00,
+        "L2"
+    },
+    {
+        1.50,
+        "L1"
+    },
+    {
+        2.00,
+        "R1"
+    },
+    {
+        2.50,
+        "R2",
+        4,
+        .5
+    },
+    {
+        2.50,
+        "U2",
+        2,
+        1
+    }
+}
 
 ------------------------ 'menu' variables
 
@@ -92,16 +145,28 @@ menu.taskOffsetX = {
 ---------------------------------------------------------------------
 -------------------------CORE FUNCTIONS------------------------------
 
+function core.playSound(audio)
+    audio:stop()
+    audio:setVolume(g.sfxVolume)
+    audio:play()
+end
+
 function core.checkInput(key)
     local input = core.keyMaps[key] and core.keyMaps[key] or "unmapped"
+
+    if input == "unmapped" then return end -- fuck it
 
     if game_state == "InGame" then
 
         print(input)
 
-        local particleColor = {1,0,0}
+        local particleColor
         if string.sub(input, #input, #input) == "R" then
-            particleColor = {0,0,1}
+            particleColor = {.5,.5,1}
+            core.playSound(g.snd.hitRight)
+        else
+            particleColor = {1,0,0}
+            core.playSound(g.snd.hitLeft)
         end
 
         if input == "leftL" or input == "leftR" then
@@ -134,7 +199,7 @@ function core.checkInput(key)
                 color = particleColor,
                 opacity = .5
             })
-        elseif input == "downL" or input == "downR" then
+         elseif input == "downL" or input == "downR" then
             particle.create({
                 img = g.img.beatInnerY,
                 position = {core.bumpX + game.fieldOffset.x + 150, core.bumpY + game.fieldOffset.y + 343},
@@ -145,6 +210,31 @@ function core.checkInput(key)
                 opacity = .5
             })
         end
+
+
+
+        local direction = string.sub(input, 1, #input - 1)
+        local color = string.sub(input, #input, #input) == "L" and "red" or "blue"
+
+        for index, inputData in pairs(game.inputList) do
+            if direction == inputData[2] and color == inputData[3] then
+                if math.abs(game.currentSong:tell() - inputData[1]) < game.perfectThreshold then
+                    -- perfect hit
+                    print("wow tetris")
+                elseif math.abs(game.currentSong:tell() - inputData[1]) < game.niceThreshold then
+                    print("jusit a triple,,")
+                end
+
+                if math.abs(game.currentSong:tell() - inputData[1]) < game.niceThreshold then
+                    game.inputList[index] = nil
+                end
+            end
+        end
+
+
+
+
+
     elseif game_state == "Menu" then
         print(input)
 
@@ -278,8 +368,8 @@ function g.render() -- the initial rendering function. handles rendering the des
     ------------------------------------------------------------------------------------
 
     -- render the start bar on taskbar
-    core.draw(g.img.menuStart,
-            core.bumpX + 6, 582,
+    game.draw(g.img.menuStart,
+            6, 582,
             0,
             65,
             20,
@@ -307,6 +397,10 @@ function g.loadSkin(skinName) -- loads a skin into memory
     for name, imagePath in pairs(g.imagePointers) do
         g.img[name] = lg.newImage("assets/skins/" .. skinName .. "/" .. imagePath)
     end
+
+    for name, audioPath in pairs(g.soundPointers) do
+        g.snd[name] = love.audio.newSource("assets/skins/" .. skinName .. "/sfx/" .. audioPath, "static")
+    end
 end
 
 
@@ -322,18 +416,35 @@ function game.draw( drawable, x, y, r, sx, sy, ox, oy, kx, ky ) -- in place of l
     core.draw( drawable, x + core.bumpX, y + core.bumpY, r, sx, sy, ox, oy, kx, ky )
 end
 
+function game.init()
+    game.loadMap()
+    game.currentSong:setVolume(g.songVolume)
+    game.currentSong:setPitch(100/120)
+    game.currentSong:play()
+    game.inputList = {}
+end
+
 
 -- creates a beat and adds it to the beat table
-function game.createBeat(startTime, endTime, direction, color, position, iterations)
+function game.createBeat(startTime, endTime, direction, color, position, iterations, frequency, opacity)
     table.insert(game.beats, {
         currentTime = startTime,
+        opacity = opacity,
         startTime = startTime,
         endTime = endTime,
         direction = direction,
         color = color,
         position = position,
-        iterations = iterations
+        iterations = iterations,
+        frequency = frequency
     })
+
+    table.insert(game.inputList,{
+        endTime,
+        direction,
+        color
+    })
+
 end
 
 -- function called to process and increase beat step
@@ -341,9 +452,43 @@ function game.processBeats(dt)
     for index, beat in pairs(game.beats) do
         beat.currentTime = beat.currentTime + dt
         if beat.currentTime >= beat.endTime then
+            if beat.iterations > 0 then
+                local difference = beat.currentTime - beat.endTime
+                beat.position = "inner"
+
+                local swaps = {
+                    right = "left",
+                    left = "right",
+                    up = "down",
+                    down = "up"
+                }
+
+                print(beat.endTime + beat.frequency)
+
+                game.createBeat(
+                        beat.endTime,
+                        beat.endTime + beat.frequency,
+                        swaps[beat.direction],
+                        beat.color,
+                        "inner",
+                        beat.iterations - 1,
+                        beat.frequency,
+                        beat.opacity
+                )
+            end
+
             game.beats[index] = nil
         end
     end
+
+    for index, inputData in pairs(game.inputList) do
+        if game.currentSong:tell() > (inputData[1] + game.niceThreshold) then
+            game.inputList[index] = nil
+            print("miss")
+        end
+    end
+
+
 end
 
 -- function called to render all current beats to the screen
@@ -351,19 +496,21 @@ function game.renderBeats()
 
     for _, beat in pairs(game.beats) do
 
+        beat.opacity = beat.opacity and beat.opacity or 1
+
+        lg.push()
+        if beat.color == "red" then
+            lg.setColor(1,0,0, beat.opacity)
+        else
+            lg.setColor(0,0,1, beat.opacity)
+        end
+
+        local ratio = (beat.currentTime - beat.startTime) / (beat.endTime - beat.startTime)
+        local inverseRatio = 1 - ratio
+        local xPos, yPos, ySize, xSize, rot = 0
+
         if beat.position == "outer" or not beat.position then
 
-            lg.push()
-            if beat.color == "red" then
-                lg.setColor(1,0,0)
-            else
-                lg.setColor(0,0,1)
-            end
-
-            local ratio = (beat.currentTime - beat.startTime) / (beat.endTime - beat.startTime)
-            local inverseRatio = 1 - ratio
-
-            local xPos, yPos, ySize, xSize, rot = 0
 
             --- CASE: IT IS LEFT
             if beat.direction == "left" then
@@ -388,9 +535,6 @@ function game.renderBeats()
                 ySize = xSize * core.aspectRatio(g.img.beatOuterY)
             end
 
-
-
-
             if beat.direction == "left" or beat.direction == "right" then
                 game.draw(g.img.beatOuterX,
                         xPos, yPos,
@@ -408,9 +552,52 @@ function game.renderBeats()
                         "top"
                 )
             end
-            lg.pop()
-        end
+        elseif beat.position == "inner" then
+            if beat.direction == "left" then
+                xPos = game.fieldOffset.x + 150 + 200 - (200 * ratio)
+                yPos = game.fieldOffset.y + 150
+                ySize = 200
+                xSize = 100
 
+
+
+            elseif beat.direction == "right" then
+                xPos = game.fieldOffset.x + 150 + (200 * ratio)
+                yPos = game.fieldOffset.y + 150
+                ySize = 200
+                xSize = -100
+            elseif beat.direction == "up" then
+                yPos = game.fieldOffset.y + 150 + 200 - (200 * ratio)
+                xPos = game.fieldOffset.x + 150
+                ySize = 100
+                xSize = 200
+            elseif beat.direction == "down" then
+                yPos = game.fieldOffset.y + 150 + (200 * ratio)
+                xPos = game.fieldOffset.x + 150
+                ySize = -100
+                xSize = 200
+            end
+
+
+            if beat.direction == "left" or beat.direction == "right" then
+                game.draw(g.img.beatInnerX,
+                        xPos, yPos,
+                        rot,
+                        xSize, ySize,
+                        "left",
+                        "top"
+                )
+            else
+                game.draw(g.img.beatInnerY,
+                        xPos, yPos,
+                        rot,
+                        xSize, ySize,
+                        "left",
+                        "top"
+                )
+            end
+        end
+            lg.pop()
     end
 
     lg.push()
@@ -462,12 +649,12 @@ function game.render() -- this renders the game items (ex. play field, score, et
 
 
     -- draw the center hit box
-    game.draw(g.img.hitZone,
+    --[[game.draw(g.img.hitZone,
             game.fieldOffset.x + 250, game.fieldOffset.y + 250,
             0,
             200, 200,
             "center", "center"
-    )
+    )]]
 
     particle.draw()
 
@@ -502,6 +689,58 @@ end
 
 function game.update(dt)
     game.processBeats(dt)
+
+    if not game.currentSong then return end
+
+    local associations = {}
+
+    for position, beatData in pairs(game.beatmapData) do
+
+        local direction
+        local color
+        local opacity = 1
+        local c1 = string.sub(beatData[2], 1, 1)
+        local c2 = string.sub(beatData[2], 2, 2)
+
+        if c1 == "L" then
+            direction = "left"
+        elseif c1 == "R" then
+            direction = "right"
+        elseif c1 == "U" then
+            direction = "up"
+        else
+            direction = "down"
+        end
+
+        if c2 == "1" then
+            color = "red"
+        else
+            color = "blue"
+        end
+
+        if associations[c1 .. tostring(beatData[1])] == true then
+            opacity = 0.5
+        end
+
+        associations[c1 .. tostring(beatData[1])] = true
+
+
+
+        if game.currentSong:tell() >= (beatData[1] - game.approachRate) then
+            game.createBeat(
+                    game.currentSong:tell(),
+                    beatData[1],
+                    direction,
+                    color,
+                    "outer",
+                    beatData[3] and beatData[3] or 0,
+                    beatData[4],
+                    opacity
+            )
+
+            game.beatmapData[position] = nil
+        end
+    end
 end
 
 ---------------------------------------------------------------------

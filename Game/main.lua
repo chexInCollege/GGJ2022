@@ -5,8 +5,7 @@ require("code/particles")
 
 g.loadSkin("default") -- load default skin
 
-game.loadMap()
--- game.currentSong:play()
+game.init()
 
 
 function love.draw() -- Runs every time the game draws (MORE than 60 times/sec)
