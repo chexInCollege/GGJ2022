@@ -72,6 +72,8 @@ g.imagePointers = {
     nice = "nice.png",
     perfect = "perfect.png",
     time = "time.png",
+    popUp = "popUp.png",
+    popUpBig = "popUpBig.png",
 }
 
 g.snd = {}
@@ -530,7 +532,7 @@ menu.currentX = 1
 menu.currentY = 1
 menu.taskList = {
     start = { "exit" },
-    play = { "jazzJackrabbit" },
+    play = { "demo" },
     settings = { "song volume", "sfx volume" },
     credits = { "code", "graphics", "songs", "sfx" }
 }
@@ -683,8 +685,6 @@ function core.checkInput(key)
         -- handle cancel button
         if input == "cancel" then
             game.currentSong:stop()
-            menu.currentX = 1
-            menu.currentY = 1
             game_state = "GameDone"
         end
 
@@ -718,6 +718,20 @@ function core.checkInput(key)
             print("game start!!!")
             game_state = "InGame"
             game.init()
+        end
+        if input == "confirm" and menu.currentX == 3 and menu.currentY == 2 then
+            if (g.songVolume < 0.9) then
+                g.songVolume = g.songVolume + 0.1
+            else
+                g.songVolume = 0.0
+            end
+        end
+        if input == "confirm" and menu.currentX == 3 and menu.currentY == 3 then
+            if (g.sfxVolume < 0.9) then
+                g.sfxVolume = g.sfxVolume + 0.1
+            else
+                g.sfxVolume = 0.0
+            end
         end
 
 
@@ -870,7 +884,7 @@ function g.render() -- the initial rendering function. handles rendering the des
 
     -- render time bar
     game.draw(g.img.time,
-            700, 583,
+            700, 582,
             0,
             93,
             20,
@@ -1267,6 +1281,8 @@ end
 
 function menu.render()
 
+    --lg.setColor(1,1,1)
+
     if menu.currentX == 1 then
 
         -- render contexts
@@ -1300,6 +1316,14 @@ function menu.render()
                     "left", "bottom"
             )
         end
+
+        lg.push()
+        lg.setColor(0,0,0)
+        game.draw("Exit",
+                menu.taskOffsetX[1] + 22, 538,
+                0
+        )
+        lg.pop()
 
     elseif menu.currentX == 2 then
 
@@ -1335,6 +1359,15 @@ function menu.render()
             end
 
         end
+
+        lg.push()
+        lg.setColor(0,0,0)
+        game.draw("I'll have what...",
+                menu.taskOffsetX[2] + 22, 538,
+                0
+        )
+        lg.pop()
+
     elseif menu.currentX == 3 then
 
         -- render contexts
@@ -1367,6 +1400,18 @@ function menu.render()
                     36,
                     "left", "bottom"
             )
+            game.draw(g.img.popUp,
+                    400, 250,
+                    0,
+                    280,
+                    200,
+                    "center", "center"
+            )
+            game.draw("Song Volume \n _______________________ \n\nCurrent Volume: " .. (g.songVolume * 100) .. "%\n\nPress 'Enter' to adjust",
+                    280, 180,
+                    0
+            )
+
         elseif menu.currentY == 3 then
             game.draw(g.img.menuTaskContextSelected,
                     menu.taskOffsetX[3], 564 - 36,
@@ -1375,7 +1420,32 @@ function menu.render()
                     36,
                     "left", "bottom"
             )
+            game.draw(g.img.popUp,
+                    400, 250,
+                    0,
+                    280,
+                    200,
+                    "center", "center"
+            )
+            game.draw("SFX Volume \n _______________________ \n\nCurrent Volume: " .. (g.sfxVolume * 100) .. "%\n\nPress 'Enter' to adjust",
+                    280, 180,
+                    0
+            )
+
+
         end
+
+        lg.push()
+        lg.setColor(0,0,0)
+        game.draw("SFX Volume",
+                menu.taskOffsetX[3] + 22, 538 - 36,
+                0
+        )
+        game.draw("Song Volume",
+                menu.taskOffsetX[3] + 22, 538,
+                0
+        )
+        lg.pop()
 
     elseif menu.currentX == 4 then
 
@@ -1409,6 +1479,18 @@ function menu.render()
                     36,
                     "left", "bottom"
             )
+            game.draw(g.img.popUp,
+                    400, 250,
+                    0,
+                    280,
+                    200,
+                    "center", "center"
+            )
+            game.draw("Code \n _______________________ \n\nCofC Global Game Jam 2022\n\nAlex Groves\nAlex Tate-Moffo",
+                    280, 180,
+                    0
+            )
+
         elseif menu.currentY == 3 then
             game.draw(g.img.menuTaskContextSelected,
                     menu.taskOffsetX[4], 564 - 36,
@@ -1417,6 +1499,18 @@ function menu.render()
                     36,
                     "left", "bottom"
             )
+            game.draw(g.img.popUp,
+                    400, 250,
+                    0,
+                    280,
+                    200,
+                    "center", "center"
+            )
+            game.draw("Graphics \n _______________________ \n\nCofC Global Game Jam 2022\n\nAlex Tate-Moffo",
+                    280, 180,
+                    0
+            )
+
         elseif menu.currentY == 4 then
             game.draw(g.img.menuTaskContextSelected,
                     menu.taskOffsetX[4], 564 - 72,
@@ -1425,6 +1519,18 @@ function menu.render()
                     36,
                     "left", "bottom"
             )
+            game.draw(g.img.popUp,
+                    400, 250,
+                    0,
+                    280,
+                    200,
+                    "center", "center"
+            )
+            game.draw("Songs \n _______________________ \n\n'I'll Have What She's Having'\nby WOOZE",
+                    280, 180,
+                    0
+            )
+
         elseif menu.currentY == 5 then
             game.draw(g.img.menuTaskContextSelected,
                     menu.taskOffsetX[4], 564 - 108,
@@ -1433,20 +1539,69 @@ function menu.render()
                     36,
                     "left", "bottom"
             )
+            game.draw(g.img.popUp,
+                    400, 250,
+                    0,
+                    280,
+                    200,
+                    "center", "center"
+            )
+            game.draw("SFX \n _______________________ \n\nAlex Groves\nWindows 95 System Sounds",
+                    280, 180,
+                    0
+            )
+
         end
+
+
+
+        lg.push()
+        lg.setColor(0,0,0)
+        game.draw("SFX",
+                menu.taskOffsetX[4] + 22, 538 - 108,
+                0
+        )
+        game.draw("Songs",
+                menu.taskOffsetX[4] + 22, 538 - 72,
+                0
+        )
+        game.draw("Graphics",
+                menu.taskOffsetX[4] + 22, 538 - 36,
+                0
+        )
+        game.draw("Code",
+                menu.taskOffsetX[4] + 22, 538,
+                0
+        )
+        lg.pop()
 
     end
 
     lg.push()
     lg.setColor(0,0,0)
     game.draw("Start",
-            menu.taskOffsetX[1] + 25, 574,
+            menu.taskOffsetX[1] + 22, 574,
+            0
+    )
+    game.draw("Play Beatmap",
+            menu.taskOffsetX[2] + 22, 574,
+            0
+    )
+    game.draw("Volume Settings",
+            menu.taskOffsetX[3] + 22, 574,
+            0
+    )
+    game.draw("View Credits",
+            menu.taskOffsetX[4] + 22, 574,
+            0
+    )
+    game.draw("0:00 MIN",
+            733, 574,
             0
     )
 
-
     lg.pop()
-    lg.setColor(1,1,1)
+
 
 end
 
