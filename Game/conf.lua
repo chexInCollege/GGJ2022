@@ -1,5 +1,5 @@
 function love.conf(t)
-    t.title = "GGJ2022"                  -- The title of the window the game is in (string)
+    t.title = "BeatPlayer"                  -- The title of the window the game is in (string)
     t.version = "11.4"                    -- The LÖVE version this game was made for (string)
     t.console = true                     -- Attach a console (boolean, Windows only)
     t.window.width = 800                 -- The window width (number)
