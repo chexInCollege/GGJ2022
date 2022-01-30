@@ -529,7 +529,7 @@ game.beatmapDataTemplate = {
 ------------------------ 'menu' variables
 
 menu.currentX = 1
-menu.currentY = 1
+menu.currentY = 2
 menu.taskList = {
     start = { "exit" },
     play = { "demo" },
@@ -547,6 +547,53 @@ menu.taskOffsetX = {
 
 ---------------------------------------------------------------------
 -------------------------CORE FUNCTIONS------------------------------
+
+function core.clone( Table, Cache ) -- Makes a deep copy of a table.
+    if type( Table ) ~= 'table' then
+        return Table
+    end
+
+    Cache = Cache or {}
+    if Cache[Table] then
+        return Cache[Table]
+    end
+
+    local New = {}
+    Cache[Table] = New
+    for Key, Value in pairs( Table ) do
+        New[core.clone( Key, Cache)] = core.clone( Value, Cache )
+    end
+
+    return New
+end
+
+function core.generate_timestamp(input)
+    local minutes = 0
+    local seconds = math.floor(input)
+    local ms = input - math.floor(input)
+
+    while seconds > 59 do
+        seconds = seconds - 60
+        minutes = minutes + 1
+    end
+
+    if minutes < 10 then
+        minutes = "0" .. tostring(minutes)
+    end
+
+    if seconds < 10 then
+        seconds = "0" .. tostring(seconds)
+    end
+
+    ms = math.floor(ms*100)/100
+
+    if string.len(ms) == 3 then
+        ms = string.sub(tostring(ms), 2,#tostring(ms)) .. "0"
+    else
+        ms = string.sub(tostring(ms), 2,#tostring(ms))
+    end
+    return minutes..":"..seconds..ms
+end
 
 function core.cleanTable(tab)
     local tab2 = {}
@@ -637,6 +684,7 @@ function core.checkInput(key)
             if direction == inputData[2] and color == inputData[3] then
                 if math.abs(game.currentSong:tell() - inputData[1]) < game.perfectThreshold then
                     -- perfect hit
+                    game.perfectCount = game.perfectCount + 1
                     particle.create("hitConfirm", {
                         img = g.img.perfect,
                         position = {core.bumpX + (800 - 205), core.bumpY + 495},
@@ -656,6 +704,7 @@ function core.checkInput(key)
                         }
                     })
                 elseif math.abs(game.currentSong:tell() - inputData[1]) < game.niceThreshold then
+                    game.niceCount = game.niceCount + 1
                     particle.create("hitConfirm", {
                         img = g.img.nice,
                         position = {core.bumpX + (800 - 205), core.bumpY + 495},
@@ -677,7 +726,7 @@ function core.checkInput(key)
 
                 if math.abs(game.currentSong:tell() - inputData[1]) < game.niceThreshold then
                     game.inputList[index] = nil
-
+                    game.hp = game.hp + game.hpDrain/2
                 end
             end
         end
@@ -708,7 +757,7 @@ function core.checkInput(key)
         end
 
         menu.currentX = core.clamp(menu.currentX, 1, 4)
-        menu.currentY = core.clamp(menu.currentY, 1, #menu.taskList[menu.taskListKeys[menu.currentX]] + 1)
+        menu.currentY = core.clamp(menu.currentY, 2, #menu.taskList[menu.taskListKeys[menu.currentX]] + 1)
 
         -- handle actual menu button functions
         if input == "confirm" and menu.currentX == 1 and menu.currentY == 2 then
@@ -936,10 +985,26 @@ function game.init()
     game.inputList = {}
     game.beatCount = 0
 
+    game.perfectCount = 0
+    game.niceCount = 0
+    game.accuracy = 0
+
+    game.hpDrain = 2
+    game.hp = 10
+
+    game.beats = {}
+    game.inputList = {}
 
     -- (temp)
-    game.beatmapData = game.beatmapDataTemplate
-    game.totalBeats = #game.beatmapData
+    game.beatmapData = core.clone(game.beatmapDataTemplate)
+    game.totalBeats = 0
+
+    for _, beat in pairs(game.beatmapData) do
+        game.totalBeats = game.totalBeats + 1
+        if beat[3] then
+            game.totalBeats = game.totalBeats + beat[3]
+        end
+    end
 end
 
 
@@ -998,21 +1063,23 @@ function game.processBeats(dt)
 
             game.beats[index] = nil
 
-            if beat.iterations == 0 then
+            --if beat.iterations == 0 then
                 game.beatCount = game.beatCount + 1
-            end
+            --end
         end
     end
 
     for index, inputData in pairs(game.inputList) do
         if game.currentSong:tell() > (inputData[1] + game.niceThreshold) then
             game.inputList[index] = nil
-
+            game.hp = game.hp - game.hpDrain
         end
     end
 
 
 end
+
+
 
 -- function called to render all current beats to the screen
 function game.renderBeats()
@@ -1200,6 +1267,16 @@ function game.render() -- this renders the game items (ex. play field, score, et
             180, 320
     )
 
+    game.draw("SCORE: " .. tostring(game.score),
+            game.fieldOffset.x + 540, game.fieldOffset.y + 10
+    )
+
+
+    local acc_str = string.sub(tostring(game.accuracy * 100), 1, 5) .. "%"
+    game.draw("ACCURACY: " .. acc_str,
+            game.fieldOffset.x + 540, game.fieldOffset.y + 30
+    )
+
     -- draw the progress window
     game.draw(g.img.progressWindow,
             game.fieldOffset.x + 530, game.fieldOffset.y + 325,
@@ -1218,6 +1295,10 @@ function game.update(dt)
     game.processBeats(dt)
 
     if not game.currentSong then return end
+
+    game.accuracy = (game.perfectCount + game.niceCount*0.6667) / game.beatCount
+
+    game.hp = core.clamp(game.hp, 0, 10)
 
     local associations = {}
 
@@ -1269,7 +1350,7 @@ function game.update(dt)
         end
     end
 
-    if #game.beatmapData == 0 and #game.inputList == 0 then
+    if game.beatCount >= game.totalBeats and #game.inputList == 0 then
         game.currentSong:stop()
         game_state = "Menu"
     end
@@ -1282,6 +1363,7 @@ end
 function menu.render()
 
     --lg.setColor(1,1,1)
+
 
     if menu.currentX == 1 then
 

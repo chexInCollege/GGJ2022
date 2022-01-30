@@ -3,7 +3,7 @@ game_state = "Menu" -- game state
 require("code/libs") -- imports all relevant functions and variable declarations
 require("code/particles")
 
-game.songPreview = 40
+game.songPreview = 0
 
 g.loadSkin("default") -- load default skin
 
