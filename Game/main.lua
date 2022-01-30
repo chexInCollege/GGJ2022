@@ -3,7 +3,7 @@ game_state = "Menu" -- game state
 require("code/libs") -- imports all relevant functions and variable declarations
 require("code/particles")
 
-game.songPreview = 0
+game.songPreview = 40
 
 g.loadSkin("default") -- load default skin
 
@@ -30,6 +30,7 @@ function love.update(dt) -- runs about 60 times/sec
 
     if game_state == "InGame" then
         game.update(dt)
+        print(game.beatCount, "/", game.totalBeats)
     elseif game_state == "Menu" then
         menu.update(dt)
     end

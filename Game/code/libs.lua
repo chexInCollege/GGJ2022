@@ -110,7 +110,9 @@ game.perfectThreshold = 0.13/2
 ---         "U2"
 ---     }
 --- }
-game.beatmapData = {
+
+game.beatmapData = {}
+game.beatmapDataTemplate = {
     {5,
     "L2"},
 
@@ -544,6 +546,16 @@ menu.taskOffsetX = {
 ---------------------------------------------------------------------
 -------------------------CORE FUNCTIONS------------------------------
 
+function core.cleanTable(tab)
+    local tab2 = {}
+
+    for _, item in pairs(tab) do
+        table.insert(tab2, item)
+    end
+
+    return tab2
+end
+
 function core.playSound(audio)
     audio:stop()
     audio:setVolume(g.sfxVolume)
@@ -663,6 +675,7 @@ function core.checkInput(key)
 
                 if math.abs(game.currentSong:tell() - inputData[1]) < game.niceThreshold then
                     game.inputList[index] = nil
+
                 end
             end
         end
@@ -880,6 +893,9 @@ function g.loadSkin(skinName) -- loads a skin into memory
             g.snd[name]:setVolume(2)
         end
     end
+
+    lg.setFont(lg.newFont("/assets/skins/"..skinName.."/font.ttf", 16))
+
 end
 
 
@@ -904,6 +920,12 @@ function game.init()
 
     game.currentSong:play()
     game.inputList = {}
+    game.beatCount = 0
+
+
+    -- (temp)
+    game.beatmapData = game.beatmapDataTemplate
+    game.totalBeats = #game.beatmapData
 end
 
 
@@ -961,13 +983,17 @@ function game.processBeats(dt)
             end
 
             game.beats[index] = nil
+
+            if beat.iterations == 0 then
+                game.beatCount = game.beatCount + 1
+            end
         end
     end
 
     for index, inputData in pairs(game.inputList) do
         if game.currentSong:tell() > (inputData[1] + game.niceThreshold) then
             game.inputList[index] = nil
-            print("miss")
+
         end
     end
 
@@ -1229,8 +1255,9 @@ function game.update(dt)
         end
     end
 
-    if #game.beatmapData == 0 and #inputData == 0 then
-
+    if #game.beatmapData == 0 and #game.inputList == 0 then
+        game.currentSong:stop()
+        game_state = "Menu"
     end
 
 end
