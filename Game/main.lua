@@ -7,8 +7,9 @@ game.songPreview = 0
 
 g.loadSkin("default") -- load default skin
 
--- game.init()
-
+if game_state == "InGame" then
+    game.init()
+end
 
 function love.draw() -- Runs every time the game draws (MORE than 60 times/sec)
     g.render() -- render the base desktop
@@ -17,9 +18,11 @@ function love.draw() -- Runs every time the game draws (MORE than 60 times/sec)
         game.render()
     elseif game_state == "Menu" then
         menu.render()
+    elseif game.state == "GameDone" then
+        --finish.render()
     end
 
-    if game.currentSong then print(game.currentSong:tell()) end
+    --if game.currentSong then print(game.currentSong:tell()) end
 
 end
 
