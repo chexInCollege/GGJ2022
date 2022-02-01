@@ -75,6 +75,7 @@ g.imagePointers = {
     popUp = "popUp.png",
     popUpBig = "popUpBig.png",
     health = "health.png",
+    hitArrow = "hitArrow.png",
 }
 
 g.snd = {}
@@ -101,9 +102,16 @@ game.mapDirectory = "assets/maps/"
 game.currentSong = false
 game.currentMap = {}
 
-game.approachRate = 0.65
+game.approachRate = 0.45
 game.niceThreshold = 0.26/2
 game.perfectThreshold = 0.13/2
+
+game.hitArrowColors = {
+    left = {0,0,0},
+    right = {0,0,0},
+    up = {0,0,0},
+    down = {0,0,0}
+}
 
 
 --- beatmap structure:
@@ -222,9 +230,11 @@ function core.checkInput(key)
         local particleColor
         if string.sub(input, #input, #input) == "R" then
             particleColor = {.2,.25,1}
+            g.snd.hitLeft:setPitch(1.25)
             core.playSound(g.snd.hitLeft)
         else
             particleColor = {1,.2,.25}
+            g.snd.hitLeft:setPitch(1)
             core.playSound(g.snd.hitLeft)
         end
 
@@ -250,6 +260,7 @@ function core.checkInput(key)
                 opacity = 1,
                 opacityDelta = -0.05
             })
+
         elseif input == "upL" or input == "upR" then
             particle.create({
                 img = g.img.beatInnerY,
@@ -279,11 +290,16 @@ function core.checkInput(key)
         local direction = string.sub(input, 1, #input - 1)
         local color = string.sub(input, #input, #input) == "L" and "red" or "blue"
 
+        game.hitArrowColors[direction] = {particleColor[1] / 6, particleColor[2] / 6, particleColor[3] / 6}
+
+
         for index, inputData in pairs(game.inputList) do
             if direction == inputData[2] and color == inputData[3] then
                 if math.abs(game.currentSong:tell() - inputData[1]) < game.perfectThreshold then
                     -- perfect hit
                     game.perfectCount = game.perfectCount + 1
+                    game.hitArrowColors[direction] = {0, .2, 0}
+                    game.score = game.score + 300
                     particle.create("hitConfirm", {
                         img = g.img.perfect,
                         position = {core.bumpX + (800 - 205), core.bumpY + 495},
@@ -303,7 +319,10 @@ function core.checkInput(key)
                         }
                     })
                 elseif math.abs(game.currentSong:tell() - inputData[1]) < game.niceThreshold then
+                    game.score = game.score + 100
+
                     game.niceCount = game.niceCount + 1
+                    game.hitArrowColors[direction] = {87/255, 60/255, 0}
                     particle.create("hitConfirm", {
                         img = g.img.nice,
                         position = {core.bumpX + (800 - 205), core.bumpY + 495},
@@ -592,6 +611,7 @@ function game.init()
     game.currentSong:play()
     game.inputList = {}
     game.beatCount = 0
+    game.score = 0
 
     game.perfectCount = 0
     game.niceCount = 0
@@ -831,19 +851,54 @@ function game.render() -- this renders the game items (ex. play field, score, et
     )
     lg.pop()
 
+    -- draw the hit arrows
+    lg.push()
+    lg.setColor(0.15 + game.hitArrowColors.up[1],0.15 + game.hitArrowColors.up[2],0.15 + game.hitArrowColors.up[3])
+    game.draw(g.img.hitArrow,
+            game.fieldOffset.x + 250,
+            game.fieldOffset.y + 100, 0,
+            100, 50,
+            "center","center")
+    lg.pop()
 
-    -- render beats here
+    lg.push()
+    lg.setColor(0.15 + game.hitArrowColors.down[1],0.15 + game.hitArrowColors.down[2],0.15 + game.hitArrowColors.down[3])
+    game.draw(g.img.hitArrow,
+            game.fieldOffset.x + 250,
+            game.fieldOffset.y + 400, math.rad(180),
+            100, 50,
+            "center","center")
+    lg.pop()
 
+    lg.push()
+    lg.setColor(0.15 + game.hitArrowColors.left[1],0.15 + game.hitArrowColors.left[2],0.15 + game.hitArrowColors.left[3])
+    game.draw(g.img.hitArrow,
+            game.fieldOffset.x + 100,
+            game.fieldOffset.y + 250, math.rad(-90),
+            100, 50,
+            "center","center")
+    lg.pop()
+
+    lg.push()
+    lg.setColor(0.15 + game.hitArrowColors.right[1],0.15 + game.hitArrowColors.right[2],0.15 + game.hitArrowColors.right[3])
+    game.draw(g.img.hitArrow,
+            game.fieldOffset.x + 400,
+            game.fieldOffset.y + 250, math.rad(90),
+            100, 50,
+            "center","center")
+    lg.pop()
+
+    -- render beats
     game.renderBeats()
 
-
+    lg.push()
     -- draw the play area foreground
     game.draw(g.img.playAreaForeground,
             game.fieldOffset.x, game.fieldOffset.y,
             0,
             500, 500
     )
-
+    lg.pop()
 
 
     -- draw the center hit box
@@ -914,6 +969,14 @@ function game.update(dt)
     game.processBeats(dt)
 
     if not game.currentSong then return end
+
+    -- process hit arrows
+    for index, arrow in pairs(game.hitArrowColors) do
+        for i = 1, 3 do
+            game.hitArrowColors[index][i] = core.clamp(game.hitArrowColors[index][i] - (0.01 * 60 * dt), 0, 1)
+        end
+    end
+
 
     game.accuracy = (game.perfectCount + game.niceCount*0.6667) / game.beatCount
 
