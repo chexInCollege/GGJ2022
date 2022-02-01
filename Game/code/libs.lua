@@ -103,8 +103,9 @@ game.currentSong = false
 game.currentMap = {}
 
 game.approachRate = 0.45
-game.niceThreshold = 0.26/2
-game.perfectThreshold = 0.13/2
+game.niceThreshold = 0.2/2
+game.perfectThreshold = 0.1/2
+game.missThreshold = 0.4
 
 game.hitArrowColors = {
     left = {0,0,0},
@@ -340,7 +341,31 @@ function core.checkInput(key)
                              }
                             }
                         }
-                    })                end
+                    })
+                elseif math.abs(game.currentSong:tell() - inputData[1]) < game.missThreshold then
+                    game.hitArrowColors[direction] = {0.5, 0, 0}
+
+                    particle.create("hitConfirm", {
+                        text = "MISS",
+                        position = {core.bumpX + (800 - 205), core.bumpY + 495},
+                        lifetime = 0.5,
+
+                        lifetimeMapping = {
+                            {0.45,
+                             {
+                                 position = {core.bumpX + (800 - 205), core.bumpY + 490},
+                             },
+                            },
+                            {0.3,
+                             {
+                                 position = {core.bumpX + (800 - 205), core.bumpY + 495}
+                             }
+                            }
+                        }
+                    })
+                    game.missCount = game.missCount + 1
+                    game.inputList[index] = nil
+                end
 
                 if math.abs(game.currentSong:tell() - inputData[1]) < game.niceThreshold then
                     game.inputList[index] = nil
@@ -615,6 +640,7 @@ function game.init()
 
     game.perfectCount = 0
     game.niceCount = 0
+    game.missCount = 0
     game.accuracy = 0
 
     game.hpDrain = 1.5
@@ -700,6 +726,7 @@ function game.processBeats(dt)
         if game.currentSong:tell() > (inputData[1] + game.niceThreshold) then
             game.inputList[index] = nil
             game.hp = game.hp - game.hpDrain
+            game.missCount = game.missCount + 1
         end
     end
 

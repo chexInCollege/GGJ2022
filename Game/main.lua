@@ -31,6 +31,7 @@ function love.update(dt) -- runs about 60 times/sec
     if game_state == "InGame" then
         game.update(dt)
         print(game.beatCount, "/", game.totalBeats)
+        print(game.missCount)
     elseif game_state == "Menu" then
         menu.update(dt)
     end
