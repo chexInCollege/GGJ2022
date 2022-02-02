@@ -419,7 +419,7 @@ function core.checkInput(key)
         if input == "confirm" and menu.currentX == 2 and menu.currentY == 2 then
             print("game start!!!")
             game_state = "InGame"
-            game.init()
+            game.init(game.selectedMap)
         end
         if input == "confirm" and menu.currentX == 3 and menu.currentY == 2 then
             if (g.songVolume < 0.9) then
@@ -627,8 +627,8 @@ function game.draw( drawable, x, y, r, sx, sy, ox, oy, kx, ky ) -- in place of l
     core.draw( drawable, x + core.bumpX, y + core.bumpY, r, sx, sy, ox, oy, kx, ky )
 end
 
-function game.init()
-    game.loadMap()
+function game.init(mapName)
+    game.loadMap(mapName)
     game.currentSong:setVolume(g.songVolume)
     game.currentSong:setPitch(game.songSlowdown)
 
@@ -856,7 +856,9 @@ function game.loadMap(mapName)
         -- MAP DATA
     }
 
-    game.currentSong = love.audio.newSource(game.mapDirectory .. "testMap/song.mp3", "stream")
+    game.beatmapDataTemplate = TSerial.unpack(love.filesystem.read(game.mapDirectory .. "/" .. mapName .. "/map.lua"))
+
+    game.currentSong = love.audio.newSource(game.mapDirectory .. "/" .. mapName .. "/song.mp3", "stream")
 end
 
 

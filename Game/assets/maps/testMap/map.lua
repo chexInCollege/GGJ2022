@@ -1,4 +1,4 @@
-game.beatmapDataTemplate = {
+{
     {5,
      "L2"},
 

@@ -3,8 +3,10 @@ game_state = "Menu" -- game state
 require("code/libs") -- imports all relevant functions and variable declarations
 require("code/particles")
 require("code/Tserial")
-require("code/map")
+require("code/data")
+
 game.songPreview = 0
+game.selectedMap = "testMap"
 
 g.loadSkin("default") -- load default skin
 
