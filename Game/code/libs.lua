@@ -141,15 +141,16 @@ menu.currentY = 2
 menu.taskList = {
     start = { "exit" },
     play = { "demo" },
-    settings = { "song volume", "sfx volume" },
+    volume = { "song volume", "sfx volume" },
+    skin = {"default"},
     credits = { "code", "graphics", "songs", "sfx" }
 }
 menu.taskListKeys = {
-    "start", "play", "settings", "credits"
+    "start", "play", "volume", "skin", "credits"
 }
 
 menu.taskOffsetX = {
-    6, 77, 212, 348
+    6, 77, 212, 347, 482
 }
 
 
@@ -403,7 +404,7 @@ function core.checkInput(key)
             core.playSound(g.snd.menuNavY)
         end
 
-        menu.currentX = core.clamp(menu.currentX, 1, 4)
+        menu.currentX = core.clamp(menu.currentX, 1, 5)
         menu.currentY = core.clamp(menu.currentY, 2, #menu.taskList[menu.taskListKeys[menu.currentX]] + 1)
 
         if input == "confirm" then
@@ -573,7 +574,7 @@ function g.render() -- the initial rendering function. handles rendering the des
 
 
     -- render tasks
-    for i = 1, 3 do
+    for i = 1, 4 do
         game.draw(g.img.menuTask,
                 menu.taskOffsetX[i + 1], 582,
                 0,
@@ -990,6 +991,19 @@ function game.render() -- this renders the game items (ex. play field, score, et
             0,
             180, 100
     )
+
+    -- draw text
+    lg.push()
+    lg.setColor(0,0,0)
+    game.draw("Esc",
+            menu.taskOffsetX[1] + 22, 574,
+            0
+    )
+    game.draw(string.format("%1i:%02i MIN", os.clock() / 60 / 60, os.clock() / 60),
+            733, 574,
+            0
+    )
+    lg.pop()
 end
 
 function game.update(dt)
@@ -1163,7 +1177,7 @@ function menu.render()
 
         -- render contexts
         local currOffset = 0
-        for _, selectedContext in pairs(menu.taskList.settings) do
+        for _, selectedContext in pairs(menu.taskList.volume) do
             game.draw(g.img.menuTaskContext,
                     menu.taskOffsetX[3], 564 - currOffset,
                     0,
@@ -1242,9 +1256,52 @@ function menu.render()
 
         -- render contexts
         local currOffset = 0
-        for _, selectedContext in pairs(menu.taskList.credits) do
+        for _, selectedContext in pairs(menu.taskList.skin) do
             game.draw(g.img.menuTaskContext,
                     menu.taskOffsetX[4], 564 - currOffset,
+                    0,
+                    130,
+                    36,
+                    "left", "bottom"
+            )
+            currOffset = currOffset + 36
+
+            -- render the selected task or context
+            if menu.currentY == 1 then
+                game.draw(g.img.menuTaskSelected,
+                        menu.taskOffsetX[4], 582,
+                        0,
+                        130,
+                        20,
+                        "left", "center"
+                )
+            elseif menu.currentY <= (#menu.taskList[menu.taskListKeys[menu.currentX]] + 1) then
+                game.draw(g.img.menuTaskContextSelected,
+                        menu.taskOffsetX[4], 564,
+                        0,
+                        130,
+                        36,
+                        "left", "bottom"
+                )
+            end
+
+        end
+
+        lg.push()
+        lg.setColor(0,0,0)
+        game.draw("Default",
+                menu.taskOffsetX[4] + 22, 538,
+                0
+        )
+        lg.pop()
+
+    elseif menu.currentX == 5 then
+
+        -- render contexts
+        local currOffset = 0
+        for _, selectedContext in pairs(menu.taskList.credits) do
+            game.draw(g.img.menuTaskContext,
+                    menu.taskOffsetX[5], 564 - currOffset,
                     0,
                     130,
                     36,
@@ -1256,7 +1313,7 @@ function menu.render()
         -- render the selected task or context
         if menu.currentY == 1 then
             game.draw(g.img.menuTaskSelected,
-                    menu.taskOffsetX[4], 582,
+                    menu.taskOffsetX[5], 582,
                     0,
                     130,
                     20,
@@ -1264,7 +1321,7 @@ function menu.render()
             )
         elseif menu.currentY == 2 then
             game.draw(g.img.menuTaskContextSelected,
-                    menu.taskOffsetX[4], 564,
+                    menu.taskOffsetX[5], 564,
                     0,
                     130,
                     36,
@@ -1284,7 +1341,7 @@ function menu.render()
 
         elseif menu.currentY == 3 then
             game.draw(g.img.menuTaskContextSelected,
-                    menu.taskOffsetX[4], 564 - 36,
+                    menu.taskOffsetX[5], 564 - 36,
                     0,
                     130,
                     36,
@@ -1304,7 +1361,7 @@ function menu.render()
 
         elseif menu.currentY == 4 then
             game.draw(g.img.menuTaskContextSelected,
-                    menu.taskOffsetX[4], 564 - 72,
+                    menu.taskOffsetX[5], 564 - 72,
                     0,
                     130,
                     36,
@@ -1324,7 +1381,7 @@ function menu.render()
 
         elseif menu.currentY == 5 then
             game.draw(g.img.menuTaskContextSelected,
-                    menu.taskOffsetX[4], 564 - 108,
+                    menu.taskOffsetX[5], 564 - 108,
                     0,
                     130,
                     36,
@@ -1349,19 +1406,19 @@ function menu.render()
         lg.push()
         lg.setColor(0,0,0)
         game.draw("SFX",
-                menu.taskOffsetX[4] + 22, 538 - 108,
+                menu.taskOffsetX[5] + 22, 538 - 108,
                 0
         )
         game.draw("Songs",
-                menu.taskOffsetX[4] + 22, 538 - 72,
+                menu.taskOffsetX[5] + 22, 538 - 72,
                 0
         )
         game.draw("Graphics",
-                menu.taskOffsetX[4] + 22, 538 - 36,
+                menu.taskOffsetX[5] + 22, 538 - 36,
                 0
         )
         game.draw("Code",
-                menu.taskOffsetX[4] + 22, 538,
+                menu.taskOffsetX[5] + 22, 538,
                 0
         )
         lg.pop()
@@ -1370,7 +1427,7 @@ function menu.render()
 
     lg.push()
     lg.setColor(0,0,0)
-    game.draw("Start",
+    game.draw("Quit",
             menu.taskOffsetX[1] + 22, 574,
             0
     )
@@ -1382,11 +1439,15 @@ function menu.render()
             menu.taskOffsetX[3] + 22, 574,
             0
     )
-    game.draw("View Credits",
+    game.draw("Change skin",
             menu.taskOffsetX[4] + 22, 574,
             0
     )
-    game.draw("0:00 MIN",
+    game.draw("View Credits",
+            menu.taskOffsetX[5] + 22, 574,
+            0
+    )
+    game.draw(string.format("%1i:%02i MIN", os.clock() / 60 / 60, os.clock() / 60),
             733, 574,
             0
     )
