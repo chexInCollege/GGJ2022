@@ -6,7 +6,7 @@ require("code/Tserial")
 require("code/data")
 
 game.songPreview = 0
-game.selectedMap = "testMap"
+game.selectedMap = "testMap2"
 
 g.loadSkin("default") -- load default skin
 

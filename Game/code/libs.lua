@@ -96,7 +96,6 @@ game.fieldOffset = {x = 50, y = 40}
 
 game.beats = {}
 
-game.songSlowdown = (140/120)
 
 game.mapDirectory = "assets/maps/"
 game.currentSong = false
@@ -629,22 +628,42 @@ end
 
 function game.init(mapName)
     game.loadMap(mapName)
-    game.currentSong:setVolume(g.songVolume)
-    game.currentSong:setPitch(game.songSlowdown)
+
 
     if game.songPreview then game.currentSong:seek(game.songPreview) end
+
+    local defaultProperties = {
+        hpDrain = 1.5,
+        approachRate = 0.5,
+        accuracyStrictness = 0.1,
+        playbackRate = 1
+    }
+
+    for index, value in pairs(defaultProperties) do
+        if not game.mapProperties[index] then
+            game.mapProperties[index] = value
+        end
+    end
+
 
     game.currentSong:play()
     game.inputList = {}
     game.beatCount = 0
     game.score = 0
 
+    game.niceThreshold = game.mapProperties.accuracyStrictness
+    game.perfectThreshold = game.mapProperties.accuracyStrictness/2
+    game.missThreshold = game.mapProperties.accuracyStrictness * 2.5
+
+    game.songSlowdown = game.mapProperties.playbackRate
+
     game.perfectCount = 0
     game.niceCount = 0
     game.missCount = 0
     game.accuracy = 0
 
-    game.hpDrain = 1.5
+    game.hpDrain = game.mapProperties.hpDrain
+    game.approachRate = game.mapProperties.approachRate
     game.hp = 10
 
     game.beats = {}
@@ -660,6 +679,9 @@ function game.init(mapName)
             game.totalBeats = game.totalBeats + beat[3]
         end
     end
+
+    game.currentSong:setVolume(g.songVolume)
+    game.currentSong:setPitch(game.songSlowdown)
 end
 
 
@@ -856,7 +878,10 @@ function game.loadMap(mapName)
         -- MAP DATA
     }
 
-    game.beatmapDataTemplate = TSerial.unpack(love.filesystem.read(game.mapDirectory .. "/" .. mapName .. "/map.lua"))
+    game.beatmapImport = TSerial.unpack(love.filesystem.read(game.mapDirectory .. "/" .. mapName .. "/map.bpl"))
+
+    game.beatmapDataTemplate = game.beatmapImport.notes
+    game.mapProperties = game.beatmapImport.properties
 
     game.currentSong = love.audio.newSource(game.mapDirectory .. "/" .. mapName .. "/song.mp3", "stream")
 end
