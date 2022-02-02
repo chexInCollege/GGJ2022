@@ -8,7 +8,7 @@ data.initialData = {
 }
 
 if not love.filesystem.getInfo("save_data.lua") then
-    love.filesystem.write("save_data.lua", TSerial.pack(initialData))
+    love.filesystem.write("save_data.lua", TSerial.pack(data.initialData, {}, true))
     data.contents = initialData
 else
     data.contents = TSerial.unpack(love.filesystem.read("save_data.lua"))
