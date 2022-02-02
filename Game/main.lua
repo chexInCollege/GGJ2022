@@ -2,6 +2,7 @@ game_state = "Menu" -- game state
 
 require("code/libs") -- imports all relevant functions and variable declarations
 require("code/particles")
+require("code/Tserial")
 require("code/map")
 game.songPreview = 0
 
