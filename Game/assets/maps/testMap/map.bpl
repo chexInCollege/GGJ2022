@@ -2,8 +2,8 @@
     properties = {
         hpDrain = 1.5,
         accuracyStrictness = 0.1,
-        approachRate = 0.3,
-        playbackRate = 1
+        approachRate = 0.5,
+        playbackRate = 140/120
     },
     notes = {
         { 5,
